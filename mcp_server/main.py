@@ -70,10 +70,8 @@ try:
     if isinstance(_loaded, dict):
         # Nur gültige Mappings (kanonisch → list[str]) übernehmen
         for _k, _v in _loaded.items():
-            _key = str(_k)
-            _val = _v
-            if isinstance(_val, list):
-                MAPPINGS[_key] = [str(x) for x in _val]
+            if isinstance(_v, list):
+                MAPPINGS[str(_k)] = [str(x) for x in _v]
 except (FileNotFoundError, json.JSONDecodeError, PermissionError) as exc:
     logger.error("mappings.json konnte nicht geladen werden: %s", exc)
 
@@ -160,9 +158,6 @@ def _build_reverse(mapping: dict[str, list[str]]) -> dict[str, str]:
     """Baut Reverse-Mapping: Variante (lower) → Kanonischer Name."""
     rev: dict[str, str] = {}
     for canonical, variants in mapping.items():
-        if not isinstance(variants, list):
-            logger.warning("Mapping '%s' hat kein Listen-Format.", canonical)
-            continue
         for v in variants:
             rev[str(v).lower()] = str(canonical)
     return rev
@@ -738,32 +733,16 @@ def tool_configure_tracker(
     Alle Parameter sind optional – nur angegebene Werte werden geändert.
     Änderungen wirken sich sofort auf neue Aufrufe aus.
     """
-    changes: list[str] = []
-    if max_tracked_words > 0:
-        old = TRACKER._MAX_TRACKED_WORDS
-        TRACKER._MAX_TRACKED_WORDS = max_tracked_words
-        changes.append(f"max_tracked_words: {old} → {max_tracked_words}")
-    if max_all_words > 0:
-        old = TRACKER._MAX_ALL_WORDS
-        TRACKER._MAX_ALL_WORDS = max_all_words
-        changes.append(f"max_all_words: {old} → {max_all_words}")
-    if max_bigrams > 0:
-        old = TRACKER._MAX_BIGRAMS
-        TRACKER._MAX_BIGRAMS = max_bigrams
-        changes.append(f"max_bigrams: {old} → {max_bigrams}")
-    if threshold > 0:
-        old = TRACKER._threshold
-        TRACKER._threshold = threshold
-        changes.append(f"threshold: {old} → {threshold}")
+    changes: list[str] = TRACKER.set_limits(
+        max_tracked_words=max_tracked_words or None,
+        max_all_words=max_all_words or None,
+        max_bigrams=max_bigrams or None,
+        threshold=threshold or None,
+    )
 
     if not changes:
         # Aktuelle Werte anzeigen
-        return json.dumps({
-            "max_tracked_words": TRACKER._MAX_TRACKED_WORDS,
-            "max_all_words": TRACKER._MAX_ALL_WORDS,
-            "max_bigrams": TRACKER._MAX_BIGRAMS,
-            "threshold": TRACKER._threshold,
-        }, ensure_ascii=False, indent=2)
+        return json.dumps(TRACKER.get_limits(), ensure_ascii=False, indent=2)
 
     return json.dumps({
         "status": "ok",
@@ -778,7 +757,7 @@ def tool_get_learning_stats() -> str:
     Enthält: Gesamtzahl erkannter Wörter, Kandidaten die die Schwelle
     erreicht haben, und die Top-20 häufigsten Wörter.
     """
-    stats: dict[str, Any] = cast(dict[str, Any], TRACKER.get_stats())
+    stats = TRACKER.get_stats()
     return json.dumps(stats, ensure_ascii=False, indent=2)
 
 

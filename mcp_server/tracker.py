@@ -390,6 +390,53 @@ class WordFrequencyTracker:
         with self._lock:
             return dict(self._candidates)
 
+    def set_limits(
+        self,
+        max_tracked_words: Optional[int] = None,
+        max_all_words: Optional[int] = None,
+        max_bigrams: Optional[int] = None,
+        threshold: Optional[int] = None,
+    ) -> list[str]:
+        """Setzt Limits und Threshold zur Laufzeit.
+
+        Args:
+            max_tracked_words: Neues Maximum für _counts (None = unverändert).
+            max_all_words: Neues Maximum für _all_counts (None = unverändert).
+            max_bigrams: Neues Maximum für _bigram_counts (None = unverändert).
+            threshold: Neue Schwelle für Auto-Canonical (None = unverändert).
+
+        Returns:
+            Liste der durchgeführten Änderungen im Format 'name: alt → neu'.
+        """
+        changes: list[str] = []
+        with self._lock:
+            if max_tracked_words is not None and max_tracked_words > 0:
+                old = self._MAX_TRACKED_WORDS
+                self._MAX_TRACKED_WORDS = max_tracked_words
+                changes.append(f"max_tracked_words: {old} → {max_tracked_words}")
+            if max_all_words is not None and max_all_words > 0:
+                old = self._MAX_ALL_WORDS
+                self._MAX_ALL_WORDS = max_all_words
+                changes.append(f"max_all_words: {old} → {max_all_words}")
+            if max_bigrams is not None and max_bigrams > 0:
+                old = self._MAX_BIGRAMS
+                self._MAX_BIGRAMS = max_bigrams
+                changes.append(f"max_bigrams: {old} → {max_bigrams}")
+            if threshold is not None and threshold > 0:
+                old = self._threshold
+                self._threshold = threshold
+                changes.append(f"threshold: {old} → {threshold}")
+        return changes
+
+    def get_limits(self) -> dict[str, int]:
+        """Gibt die aktuellen Limits zurück."""
+        return {
+            "max_tracked_words": self._MAX_TRACKED_WORDS,
+            "max_all_words": self._MAX_ALL_WORDS,
+            "max_bigrams": self._MAX_BIGRAMS,
+            "threshold": self._threshold,
+        }
+
     def approve_candidate(self, word: str, canonical: str) -> bool:
         """
         Bestätigt einen Kandidaten als neues Mapping.
