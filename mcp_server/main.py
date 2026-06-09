@@ -870,9 +870,9 @@ def tool_save_llm_doku(
         if "→" not in canonical_entry:
             continue
         can, word = canonical_entry.split("→", 1)
-        # Nur ganze Wörter ersetzen, nicht Teilwörter
+        # Nur ganze Wörter ersetzen, nicht Teilwörter (case-insensitive)
         escaped = re.escape(word)
-        compressed_text = re.sub(rf"\b{escaped}\b", can, compressed_text)
+        compressed_text = re.sub(rf"\b{escaped}\b", can, compressed_text, flags=re.IGNORECASE)
 
     if title:
         doku_content = f"# {title}\n\n{compressed_text}"

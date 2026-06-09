@@ -59,3 +59,7 @@ protected_terms.local.json
 *.bak
 *.tmp
 *.orig
+
+# Dynamische Daten (werden vom Server generiert)
+llm-doku.md
+mappings.json
