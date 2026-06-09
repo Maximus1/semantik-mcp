@@ -1,0 +1,22 @@
+# Semantik MCP Server – Abhängigkeiten
+# =======================================
+
+# MCP SDK (FastMCP für Server-Erstellung)
+mcp[cli]>=1.0.0
+
+# HTTP-Client für LLM-Provider-Anbindung
+requests>=2.31.0
+
+# Google Translate (kostenlos, kein API-Key)
+deep-translator>=1.11.0
+
+# Watchdog für Hot-Reload im Entwicklungsmodus
+watchdog>=4.0.0
+
+# Test-Framework
+pytest>=8.0.0
+pytest-mock>=3.12.0
+responses>=0.25.0
+
+# Security
+cryptography>=42.0.0

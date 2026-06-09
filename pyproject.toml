@@ -1,0 +1,83 @@
+[project]
+name = "semantik-mcp"
+version = "0.1.0"
+description = "Semantik MCP Server – terminologische Konsistenz für Texte"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp[cli]>=1.0.0",
+    "requests>=2.31.0",
+    "deep-translator>=1.11.0",
+]
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+# ---------------------------------------------------------------------------
+#  Pylint-Konfiguration
+# ---------------------------------------------------------------------------
+#  Unterdrückt kosmetische Warnungen, die hauptsächlich durch fehlende
+#  Type-Stubs für Drittanbieter-Libraries (mcp, deep-translator) entstehen.
+#  Echte Fehler (z.B. reportConstantRedefinition) werden in den jeweiligen
+#  Bereichen separat behandelt.
+# ---------------------------------------------------------------------------
+
+[tool.pylint.messages_control]
+disable = [
+    # Formatierungs-/Stil-Warnungen (sollte der Formatter regeln)
+    "C0301",  # line-too-long
+    "C0303",  # trailing-whitespace
+    "C0116",  # missing-function-docstring
+    "C0103",  # invalid-name
+    # Import-Position (oft architekturbedingt)
+    "C0411",  # wrong-import-order
+    "C0413",  # wrong-import-position
+    "C0415",  # import-outside-toplevel
+    # "Schlechte-Praktiken", die hier bewusst eingesetzt werden
+    "W0603",  # global-statement (notwendig für LLM-Konfig)
+    "W0718",  # broad-exception-caught (Robustheit)
+    "W0404",  # reimported (lokales `import re as _re` ist absichtlich)
+    "W0612",  # unused-variable
+    "W0613",  # unused-argument
+    # Konventionelle Themen
+    "C0114",  # missing-module-docstring
+    "C0115",  # missing-class-docstring
+    # Refactoring-Vorschläge (subjektiv)
+    "R0903",  # too-few-public-methods
+    "R0913",  # too-many-arguments
+    "R0914",  # too-many-locals
+    "R0915",  # too-many-statements
+    "R0912",  # too-many-branches
+]
+
+[tool.pylint.format]
+max-line-length = 100
+
+[tool.pylint.basic]
+# Module- und Klassen-Docstrings werden im README erklärt
+docstring-min-length = -1
+
+# ---------------------------------------------------------------------------
+#  mypy-Konfiguration
+# ---------------------------------------------------------------------------
+#  mypy ist strenger als Pylance für externe Libraries.
+#  Wir ignorieren Libraries ohne Type-Stubs.
+# ---------------------------------------------------------------------------
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+warn_unused_ignores = false
+show_error_codes = true
+# Kosmetische Warnungen deaktivieren
+warn_redundant_casts = true
+warn_unreachable = false
+
+[[tool.mypy.overrides]]
+# Externe Libraries ohne Type-Stubs
+module = [
+    "mcp.*",
+    "mcp_server.*",
+    "deep_translator.*",
+]
+ignore_missing_imports = true

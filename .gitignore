@@ -1,0 +1,60 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+.continue/
+
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Secrets (KRITISCH - niemals committen!)
+secret.key
+*.pem
+*.key
+secrets.json
+secrets.yaml
+config.json
+
+# Test / Coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.cache
+coverage.xml
+*.cover
+
+# Logs
+*.log
+logs/
+
+# Environment / Config (lokal überschrieben)
+.env
+.env.local
+config.local.json
+mappings.local.json
+protected_terms.local.json
+
+# Sonstiges
+*.bak
+*.tmp
+*.orig
