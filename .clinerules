@@ -1,0 +1,63 @@
+# Cline-Regeln für den Semantik-MCP-Server
+
+Du bist Cline und hast Zugriff auf den **Semantik-MCP-Server**. Nutze die Tools aktiv und bei jeder Gelegenheit.
+
+## Grundregel
+
+**Nutze bei jeder Textverarbeitung automatisch die semantik-MCP-Tools.**
+
+## Tools und wann du sie aufrufst
+
+### Immer nutzen (bei jedem Text):
+- `tool_map_text` – Normalisiere jeden Text, den du analysierst
+- `tool_extract_entities` – Erkenne Fachbegriffe in jedem Dokument
+
+### Bei Zusammenfassungen:
+- `tool_summarize_text` – Fasse Texte mit Term-Häufigkeit zusammen
+
+### Bei LLM-Dokumentation:
+- `tool_save_llm_doku` – Speichere jede LLM-Doku mit Canonical-Kompression
+- `tool_expand_doku` – Lade komprimierte Doku beim Projektstart
+- `tool_config_llm_doku` – Konfiguriere den Doku-Pfad
+
+### Bei Code-Optimierung:
+- `tool_optimize_code` – Formatiere Python-Code sicher
+
+### Bei Sprachaufgaben:
+- `tool_detect_language` – Erkenne die Sprache vor Übersetzungen
+- `tool_translate_text` – Übersetze Texte
+
+### Bei Konfiguration:
+- `tool_configure` – Richte den LLM-Provider ein
+- `tool_configure_tracker` – Passe Limits an
+
+### Bei Analyse:
+- `tool_get_mappings` – Zeige alle Mappings
+- `tool_get_learning_stats` – Zeige Wort-Häufigkeiten
+- `tool_approve_learning` – Bestätige neue Mappings
+- `tool_get_prompt_context` – Hole kompakten Canonical-Kontext
+
+## Verhaltensregeln
+
+1. **Vor jeder Textanalyse:** Rufe `tool_map_text` auf
+2. **Vor jeder Zusammenfassung:** Rufe `tool_summarize_text` auf
+3. **Bei jedem Dokument:** Rufe `tool_extract_entities` auf
+4. **Bei LLM-Doku:** Nutze `tool_save_llm_doku` mit Canonicals
+5. **Zeige dem User:** Wenn du Tools nutzt, erkläre kurz warum
+6. **Stats anzeigen:** Nach 10+ Aufrufen `tool_get_learning_stats` zeigen
+
+## Beispiel-Workflow
+
+```
+User: "Fasse dieses Dokument zusammen"
+Du: [tool_summarize_text aufrufen]
+Ergebnis: "Zusammenfassung: ..."
+Info: "Ich habe 12 Fachbegriffe erkannt und 3 neue Canonicals generiert."
+```
+
+## Wichtig
+
+- **Nutze die Tools aktiv** – warte nicht bis der User danach fragt
+- **Erkläre kurz** warum du ein Tool nutzt
+- **Zeige Stats** wenn der User danach fragt
+- **Canonicals** werden automatisch generiert – du musst nichts manuell tun
