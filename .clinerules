@@ -42,9 +42,44 @@ Du bist Cline und hast Zugriff auf den **Semantik-MCP-Server**. Nutze die Tools 
 1. **Vor jeder Textanalyse:** Rufe `tool_map_text` auf
 2. **Vor jeder Zusammenfassung:** Rufe `tool_summarize_text` auf
 3. **Bei jedem Dokument:** Rufe `tool_extract_entities` auf
-4. **Bei LLM-Doku:** Nutze `tool_save_llm_doku` mit Canonicals
-5. **Zeige dem User:** Wenn du Tools nutzt, erkläre kurz warum
-6. **Stats anzeigen:** Nach 10+ Aufrufen `tool_get_learning_stats` zeigen
+4. **Nach jedem Task:** Schreibe automatisch eine Doku mit `tool_save_llm_doku`
+5. **Beim Projektstart:** Lade die Doku mit `tool_expand_doku`
+6. **Zeige dem User:** Wenn du Tools nutzt, erkläre kurz warum
+7. **Stats anzeigen:** Nach 10+ Aufrufen `tool_get_learning_stats` zeigen
+
+## Task-Doku (WICHTIG)
+
+**Nach jedem abgearbeiteten Task MUSST du automatisch eine Doku schreiben:**
+
+```
+tool_save_llm_doku(
+    path="G:/Programmierung/semantik MCP/llm-doku.md",
+    text="[Beschreibe was du gemacht hast, welche Tools du genutzt hast, welche Ergebnisse du erzielt hast]",
+    title="Task-Doku"
+)
+```
+
+**Format der Task-Doku:**
+```
+## Task: [Datum Zeit]
+- Tool: [welches Tool]
+- Eingabe: [was war die Eingabe]
+- Ergebnis: [was war das Ergebnis]
+- Canonicals: [wurden neue generiert?]
+- Probleme: [gab es Probleme?]
+```
+
+**Warum?** So hat der LLM beim nächsten Start den vollständigen Kontext über bisherige Tasks – komprimiert mit Canonicals.
+
+## Start-Doku (beim Projektstart)
+
+**Wenn Cline gestartet wird, LADEN automatisch die bisherige Doku:**
+
+```
+tool_expand_doku(path="G:/Programmierung/semantik MCP/llm-doku.md")
+```
+
+So weiß der LLM: "Ah, letztes Mal habe ich Task X gemacht, dabei kam Problem Y vor."
 
 ## Beispiel-Workflow
 
