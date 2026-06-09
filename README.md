@@ -107,25 +107,66 @@ pip install -r requirements.txt
 
 ### MCP-Konfiguration (einmalig)
 
-Füge diesen Block in deine MCP-Client-Konfiguration ein:
+#### Cline (VS Code)
+
+Öffne die Cline-Einstellungen unter:
+`File → Preferences → Settings → Extensions → Cline → Edit in settings.json`
+
+Füge den `semantik`-Server in `cline_mcp_settings.json` hinzu:
 
 ```json
 {
   "mcpServers": {
     "semantik": {
+      "autoApprove": [
+        "tool_map_text", "tool_summarize_text", "tool_compare_versions",
+        "tool_extract_entities", "tool_detect_language", "tool_get_mappings",
+        "tool_optimize_code", "tool_translate_text", "tool_configure",
+        "tool_configure_tracker", "tool_get_learning_stats", "tool_approve_learning",
+        "tool_get_prompt_context", "tool_save_llm_doku", "tool_expand_doku",
+        "tool_config_llm_doku"
+      ],
+      "disabled": false,
+      "timeout": 60,
       "command": "uv",
       "args": ["run", "--directory", "G:/Programmierung/semantik MCP", "mcp_server/main.py"],
       "env": {
-        "LLM_PROVIDER": "ollama",
-        "LLM_BASE_URL": "http://localhost:11434",
-        "LLM_MODEL": "llama3.2",
-        "AUTO_LEARN_MODE": "approve",
-        "LEARNING_THRESHOLD": "5"
-      }
+        "LLM_PROVIDER": "openrouter",
+        "LLM_BASE_URL": "https://openrouter.ai/api/v1",
+        "LLM_MODEL": "openai/gpt-oss-120b:free",
+        "LLM_API_KEY": "DEIN_OPENROUTER_API_KEY"
+      },
+      "type": "stdio"
     }
   }
 }
 ```
+
+**Wichtig:** Ersetze `DEIN_OPENROUTER_API_KEY` durch deinen persönlichen OpenRouter-API-Key.
+Den Key erhältst du unter [https://openrouter.ai/keys](https://openrouter.ai/keys).
+Den Key **niemals** in Git-Repositories oder öffentlichen Config-Dateien speichern!
+
+**Alternative Provider (lokal ohne API-Key):**
+
+```json
+"env": {
+  "LLM_PROVIDER": "ollama",
+  "LLM_BASE_URL": "http://localhost:11434",
+  "LLM_MODEL": "llama3.2"
+}
+```
+
+**Alternative Provider (LM Studio):**
+
+```json
+"env": {
+  "LLM_PROVIDER": "lmstudio",
+  "LLM_BASE_URL": "http://localhost:1234/v1",
+  "LLM_MODEL": "local-model"
+}
+```
+
+Nach dem Speichern: VS Code neu starten (`Ctrl+Shift+P` → "Developer: Reload Window").
 
 ### Erste Schritte
 
