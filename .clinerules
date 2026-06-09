@@ -54,7 +54,7 @@ Du bist Cline und hast Zugriff auf den **Semantik-MCP-Server**. Nutze die Tools 
 ```
 tool_save_llm_doku(
     path="G:/Programmierung/semantik MCP/llm-doku.md",
-    text="[Beschreibe was du gemacht hast, welche Tools du genutzt hast, welche Ergebnisse du erzielt hast]",
+    text="## Task: [Datum Zeit]\n- Tool: [welches Tool]\n- Eingabe: [was war die Eingabe]\n- Ergebnis: [was war das Ergebnis]\n- Canonicals: [wurden neue generiert?]\n- Probleme: [gab es Probleme?]",
     title="Task-Doku"
 )
 ```
@@ -70,6 +70,8 @@ tool_save_llm_doku(
 ```
 
 **Warum?** So hat der LLM beim nächsten Start den vollständigen Kontext über bisherige Tasks – komprimiert mit Canonicals.
+
+**WICHTIG:** Die Datei ist APPEND-ONLY. Schreibe den Header `# LLM-Doku` NUR wenn die Datei leer oder nicht vorhanden ist. Sonst nur `## Task: ...` anhängen.
 
 ## Start-Doku (beim Projektstart)
 
