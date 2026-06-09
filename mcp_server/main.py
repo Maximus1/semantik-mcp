@@ -870,11 +870,15 @@ def tool_save_llm_doku(
 
     try:
         doku_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(doku_path, "w", encoding="utf-8") as fh:
+        # WICHTIG: Immer anhängen, niemals überschreiben! Vorhandene Inhalte bleiben.
+        with open(doku_path, "a", encoding="utf-8") as fh:
+            # Trennzeile zwischen Doku-Einträgen für Lesbarkeit
+            if doku_path.exists() and doku_path.stat().st_size > 0:
+                fh.write("\n\n---\n\n")
             fh.write(doku_content)
         return json.dumps({
             "status": "ok",
-            "message": f"Doku gespeichert: {doku_path}",
+            "message": f"Doku erweitert: {doku_path}",
             "original_length": len(text),
             "compressed_length": len(compressed_text),
             "savings": len(text) - len(compressed_text),
