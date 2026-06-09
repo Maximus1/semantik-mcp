@@ -158,6 +158,9 @@ class TestMappingsJsonFormat:
         if mappings_path.exists():
             data = json.loads(mappings_path.read_text(encoding="utf-8"))
             for canonical, variants in data.items():
+                # Canonicals (*-PRÄFIX) haben eine andere Semantik – überspringen
+                if canonical.startswith(("*-", "**-")):
+                    continue
                 # Der kanonische Name sollte (in einer Schreibweise) enthalten sein
                 if isinstance(variants, list):
                     canonical_in_variants = any(

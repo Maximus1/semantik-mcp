@@ -863,9 +863,19 @@ def tool_save_llm_doku(
             "message": "Ungültiger Pfad. Nur absolute Pfade sind erlaubt."
         }, ensure_ascii=False)
 
-    # Canonicals auf Text anwenden (mit Wortgrenzen, um Teilwort-Matches zu vermeiden)
+    # Schritt 1: Alle vorhandenen Canonicals im Text expandieren (idempotent)
     context = TRACKER.get_prompt_context()
-    compressed_text = text
+    decompressed = text
+    for canonical_entry in context.split("|"):
+        if "→" not in canonical_entry:
+            continue
+        can, word = canonical_entry.split("→", 1)
+        # Canonicals im Text zurück in die Vollform expandieren
+        escaped_can = re.escape(can)
+        decompressed = re.sub(rf"\b{escaped_can}\b", word, decompressed, flags=re.IGNORECASE)
+
+    # Schritt 2: Neu komprimieren mit aktuellen Canonicals
+    compressed_text = decompressed
     for canonical_entry in context.split("|"):
         if "→" not in canonical_entry:
             continue
