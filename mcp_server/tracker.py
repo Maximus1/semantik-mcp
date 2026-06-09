@@ -100,11 +100,8 @@ class WordFrequencyTracker:
         """Aktualisiere die Menge der bereits bekannten Wörter."""
         self._known_lower.clear()
         for _, variants in self._mappings.items():
-            if isinstance(variants, list):
-                for v in variants:
-                    self._known_lower.add(v.lower())
-            else:
-                self._known_lower.add(str(variants).lower())
+            for v in variants:
+                self._known_lower.add(v.lower())
         self._known_lower.update(self._protected_lower)
 
     def record(self, text: str) -> list[str]:
@@ -388,7 +385,7 @@ class WordFrequencyTracker:
         except Exception as exc:
             logger.error("Fehler bei Auto-Approve: %s", exc)
 
-    def get_candidate_words(self) -> dict[str, dict]:
+    def get_candidate_words(self) -> dict[str, dict[str, Any]]:
         """Gibt alle Kandidaten zurück (Wörter die die Schwelle erreicht haben)."""
         with self._lock:
             return dict(self._candidates)
@@ -410,11 +407,7 @@ class WordFrequencyTracker:
 
             if canonical not in self._mappings:
                 self._mappings[canonical] = [word]
-            elif isinstance(self._mappings[canonical], list):
-                if word not in self._mappings[canonical]:
-                    self._mappings[canonical].append(word)
-            elif isinstance(self._mappings[canonical], str):
-                self._mappings[canonical] = [self._mappings[canonical]]
+            else:
                 if word not in self._mappings[canonical]:
                     self._mappings[canonical].append(word)
 
@@ -446,7 +439,7 @@ class WordFrequencyTracker:
                 if not canonical.startswith(("*-", "**-")):
                     continue
 
-                if isinstance(variants, list) and len(variants) > 0:
+                if len(variants) > 0:
                     word = str(variants[0])
                 else:
                     word = str(variants)
@@ -528,7 +521,7 @@ class WordFrequencyTracker:
                 if count >= min_count
             }
 
-    def get_stats(self) -> dict:
+    def get_stats(self) -> dict[str, Any]:
         """Statistiken über die Lern-Datenbank."""
         with self._lock:
             canonical_count = sum(
