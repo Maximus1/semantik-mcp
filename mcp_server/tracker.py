@@ -99,12 +99,11 @@ class WordFrequencyTracker:
         """Aktualisiere die Menge der bereits bekannten Wörter."""
         self._known_lower.clear()
         for canonical, variants in self._mappings.items():
-            # Nur Nicht-Canonical-Einträge (normale Mappings)
-            if not canonical.startswith(("*-", "**-")):
-                self._known_lower.add(canonical.lower())
-                if isinstance(variants, list):
-                    for v in variants:
-                        self._known_lower.add(v.lower())
+            if isinstance(variants, list):
+                for v in variants:
+                    self._known_lower.add(v.lower())
+            else:
+                self._known_lower.add(str(variants).lower())
         self._known_lower.update(self._protected_lower)
 
     def record(self, text: str) -> list[str]:
