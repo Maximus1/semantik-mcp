@@ -61,5 +61,3 @@ protected_terms.local.json
 *.orig
 
 # Dynamische Daten (werden vom Server generiert)
-llm-doku.md
-mappings.json

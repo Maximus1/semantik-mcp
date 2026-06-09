@@ -1,0 +1,116 @@
+{
+  "*-COOLD": [
+    "cooldown"
+  ],
+  "*-SORTI": [
+    "sortierung"
+  ],
+  "*-STÜND": [
+    "stündlichen"
+  ],
+  "*-KONTI": [
+    "kontingent"
+  ],
+  "*-ÜBERW": [
+    "überwachung"
+  ],
+  "*-EINGA": [
+    "eingabeformular"
+  ],
+  "*-FEHLE": [
+    "fehlermeldung"
+  ],
+  "*-WARTE": [
+    "wartezeit"
+  ],
+  "*-OPENR": [
+    "openrouter"
+  ],
+  "*-KOSTE": [
+    "kostenlos"
+  ],
+  "*-GUTHA": [
+    "guthaben"
+  ],
+  "*-PROVI": [
+    "provider"
+  ],
+  "*-LLAMA": [
+    "llamafile"
+  ],
+  "**-STKO": [
+    "stündlichen kontingent"
+  ],
+  "**-KOÜB": [
+    "kontingent überwachung"
+  ],
+  "**-FEWA": [
+    "fehlermeldung wartezeit"
+  ],
+  "**-OPKO": [
+    "openrouter kostenlos"
+  ],
+  "**-KOGU": [
+    "kostenlos guthaben"
+  ],
+  "*-KONZI": [
+    "konzipierte"
+  ],
+  "*-STRUK": [
+    "strukturiertes"
+  ],
+  "*-ENDPU": [
+    "endpunkt"
+  ],
+  "*-FEHLE1": [
+    "fehlerbehandlung"
+  ],
+  "*-AUTOS": [
+    "autostart"
+  ],
+  "*-MINIM": [
+    "minimize"
+  ],
+  "*-VERBI": [
+    "verbindung"
+  ],
+  "*-FORTS": [
+    "fortschrittsbalken"
+  ],
+  "*-COUNT": [
+    "countdown"
+  ],
+  "**-STKO1": [
+    "stündlichen kontingent"
+  ],
+  "**-KOÜB1": [
+    "kontingent überwachung"
+  ],
+  "**-FEWA1": [
+    "fehlermeldung wartezeit"
+  ],
+  "**-OPKO1": [
+    "openrouter kostenlos"
+  ],
+  "**-KOGU1": [
+    "kostenlos guthaben"
+  ],
+  "**-KOST": [
+    "konzipierte strukturiertes"
+  ],
+  "**-WACO": [
+    "wartezeit cooldown"
+  ],
+  "**-ENOP": [
+    "endpunkt openrouter"
+  ],
+  "**-AUMI": [
+    "autostart minimize"
+  ],
+  "**-SOCO": [
+    "sortierung cooldown"
+  ],
+  "**-COCO": [
+    "cooldown countdown"
+  ]
+}
