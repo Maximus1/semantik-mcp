@@ -17,7 +17,7 @@ import re
 import threading
 import time
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -46,15 +46,15 @@ class WordFrequencyTracker:
 
     def __init__(
         self,
-        mappings: dict,
-        protected: list,
+        mappings: dict[str, list[str]],
+        protected: list[str],
         protected_phrases: Optional[list[str]] = None,
         threshold: int = DEFAULT_THRESHOLD,
         data_dir: Optional[Path] = None,
     ) -> None:
-        self._mappings = mappings
-        self._protected = protected
-        self._protected_phrases = protected_phrases or []
+        self._mappings: dict[str, list[str]] = mappings
+        self._protected: list[str] = protected
+        self._protected_phrases: list[str] = protected_phrases or []
         self._threshold = threshold
         self._data_dir = data_dir
 
@@ -62,7 +62,7 @@ class WordFrequencyTracker:
         self._counts: dict[str, int] = {}
         self._contexts: dict[str, list[str]] = {}
         # Wort → {"count": N, "example": "..."}
-        self._candidates: dict[str, dict] = {}
+        self._candidates: dict[str, dict[str, Any]] = {}
 
         # NEU: All-Words-Counter (auch bekannte Wörter)
         self._all_counts: dict[str, int] = {}
@@ -94,11 +94,12 @@ class WordFrequencyTracker:
         self._MAX_ALL_WORDS: int = 20_000
         self._persist_timer: Optional[threading.Timer] = None
         self._auto_approve_timer: Optional[threading.Timer] = None
+        self._task_history: list[dict[str, str]] = []
 
     def _rebuild_known(self) -> None:
         """Aktualisiere die Menge der bereits bekannten Wörter."""
         self._known_lower.clear()
-        for canonical, variants in self._mappings.items():
+        for _, variants in self._mappings.items():
             if isinstance(variants, list):
                 for v in variants:
                     self._known_lower.add(v.lower())
@@ -489,8 +490,6 @@ class WordFrequencyTracker:
 
     def _get_task_history_for_doku(self) -> list[str]:
         """Gibt die letzten Aufgaben als Doku-Zeilen zurück."""
-        if not hasattr(self, '_task_history'):
-            self._task_history: list[dict] = []
         lines: list[str] = []
         for task in self._task_history[-20:]:
             tool = task.get("tool", "?")
@@ -501,8 +500,6 @@ class WordFrequencyTracker:
 
     def add_task_log(self, tool_name: str, description: str) -> None:
         """Fügt einen Task zum Verlauf hinzu."""
-        if not hasattr(self, '_task_history'):
-            self._task_history: list[dict] = []
         self._task_history.append({
             "tool": tool_name,
             "description": description[:200],
