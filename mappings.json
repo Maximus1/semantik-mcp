@@ -80,21 +80,6 @@
   "*-COUNT": [
     "countdown"
   ],
-  "**-STKO1": [
-    "stündlichen kontingent"
-  ],
-  "**-KOÜB1": [
-    "kontingent überwachung"
-  ],
-  "**-FEWA1": [
-    "fehlermeldung wartezeit"
-  ],
-  "**-OPKO1": [
-    "openrouter kostenlos"
-  ],
-  "**-KOGU1": [
-    "kostenlos guthaben"
-  ],
   "**-KOST": [
     "konzipierte strukturiertes"
   ],
