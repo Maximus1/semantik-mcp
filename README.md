@@ -1,166 +1,101 @@
-# Semantik MCP Server
+# Semantik MCP Server – Token-Kompression für LLM-Dokumentation
 
-Ein MCP-Server für semantische Textanalyse mit automatischem Mapping-Lernen und **Token-Kompression via Canonicals**.
-
-Stellt 15 Tools bereit, die über jeden MCP-fähigen Client (Claude Desktop, Cline, VS Code, etc.) nutzbar sind.
-
----
-
-## Ersteinrichtung
-
-Beim ersten Start im MCP-Client wird nach dem LLM-Provider gefragt.
-
-### Option 1: MCP-Konfiguration (env-Block)
-
-```json
-{
-  "mcpServers": {
-    "semantik": {
-      "command": "python",
-      "args": ["g:/Programmierung/semantik MCP/mcp_server/main.py"],
-      "env": {
-        "LLM_PROVIDER": "ollama",
-        "LLM_BASE_URL": "http://localhost:11434",
-        "LLM_MODEL": "llama3.2",
-        "LLM_API_KEY": "",
-        "AUTO_LEARN_MODE": "approve",
-        "LEARNING_THRESHOLD": "5"
-      }
-    }
-  }
-}
-```
-
-### Option 2: Setup-Prompt im Agenten
-
-Der Agent ruft den `setup`-Prompt auf → zeigt Konfigurationsanleitung → Nutzer ruft `tool_configure` auf.
-
-### Option 3: tool_configure direkt aufrufen
-
-```
-tool_configure(provider="ollama", model="llama3.2")
-```
-
-Die Konfiguration wird in `config.json` gespeichert und beim nächsten Start automatisch geladen (einmalig).
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/downloads/)
+[![MCP](https://img.shields.io/badge/MCP-kompatibel-green)](https://modelcontextprotocol.io)
+[![Tests](https://img.shields.io/badge/tests-145%20passed-brightgreen)]()
 
 ---
 
-## Tools (15)
+## Warum? (Sinnstiftung)
 
-| Tool | Funktion | Beschreibung |
-|------|----------|--------------|
-| `tool_map_text` | Normierung | Ersetzt Fachbegriff-Varianten + zählt Wörter für Lernen |
-| `tool_summarize_text` | Zusammenfassen | Wählt die wichtigsten Sätze basierend auf Term-Häufigkeit |
-| `tool_compare_versions` | Vergleich | Zeigt Added/Removed/Unchanged zwischen zwei Textversionen |
-| `tool_extract_entities` | Extraktion | Listet alle erkannten Fachbegriffe im Text auf |
-| `tool_detect_language` | Spracherkennung | Erkennt Deutsch/Englisch anhand von Indikator-Wörtern |
-| `tool_get_mappings` | Inspektion | Zeigt alle verfügbaren Terminologiemappings |
-| `tool_optimize_code` | Code-Formatierung | Entfernt Trailing-Whitespace und normalisiert Zeilenenden |
-| `tool_translate_text` | Übersetzung | Übersetzt Text via Google Translate |
-| `tool_configure` | Setup | Konfiguriert LLM-Provider einmalig (speichert in config.json) |
-| `tool_get_learning_stats` | Lernen | Zeigt Wort-Häufigkeiten und Mapping-Kandidaten |
-| `tool_approve_learning` | Lernen | Bestätigt einen Kandidaten als neues Mapping |
-| `tool_get_prompt_context` | **Canonical** | Gibt kompakte Canonical-Zeichenkette für LLM-Prompt |
-| `tool_save_llm_doku` | **Doku** | Schreibt LLM-Dokumentation mit Canonical-Kompression |
-| `tool_expand_doku` | **Doku** | Expandiert Canonicals aus LLM-Doku zurück zur Vollform |
-| `tool_config_llm_doku` | **Doku** | Konfiguriert Pfad zur LLM-Dokumentationsdatei |
+### Das Problem
+
+LLMs haben begrenzte Kontextfenster. Jedes Token kostet Geld und Speicher. Wenn ein LLM bei jedem Start seine gesamte Projektdokumentation neu laden muss, fressen lange Fachbegriffe und wiederkehrende Satzteile wertvollen Kontext – ohne Informationsgewinn.
+
+**Beispiel:** Der Satz "Die Dokumentation beschreibt die Funktionsweise der Installation" enthält 68 Zeichen. Mit Canonicals: "Die *-DOKU beschreibt die *-FKT der *-INST" – nur 44 Zeichen. **35% weniger Tokens** – bei gleichem Informationsgehalt.
+
+### Die Lösung
+
+Dieser MCP-Server analysiert automatisch alle Texte, die durch ihn verarbeitet werden, erkennt häufige Wörter und Satzteile und ersetzt sie durch kurze Canonical-Platzhalter (`*-PRÄFIX`). Der LLM kann dieselbe Dokumentation mit 50-85% weniger Tokens lesen – und beim ersten Start expandieren wir die Canonicals zurück zur Vollform.
+
+### Für wen?
+
+- **LLM-Agenten** (Cline, Claude Desktop, Continue), die bei jedem Neustart Doku laden müssen
+- **Prompt-Ingenieure**, die maximale Token-Effizienz aus ihren Prompt-Templates holen wollen
+- **Teams**, die LLM-basierte Dokumentationssysteme betreiben und Token-Kosten sparen möchten
 
 ---
 
-## Canonical-Kompressionssystem
+## Was? (Information)
 
-Das Herzstück des Servers: **Automatische Token-Kompression durch Canonicals**.
+### Die 16 Tools im Überblick
 
-Ein Canonical ist eine Kurzzeichenkette, die ein langes Wort oder Satzteil im Prompt ersetzt. Der LLM kann die Doku komprimiert lesen und beim ersten Start expandieren – das spart **50-85% Tokens**.
+| Kategorie | Tool | Funktion |
+|-----------|------|----------|
+| **Textanalyse** | `tool_map_text` | Normiert Fachbegriffe, zählt Wörter für Lernen |
+| | `tool_summarize_text` | Fasst Texte zusammen (Term-Häufigkeit) |
+| | `tool_compare_versions` | Vergleicht zwei Textversionen |
+| | `tool_extract_entities` | Extrahiert erkannte Fachbegriffe |
+| | `tool_detect_language` | Erkennt Deutsch/Englisch |
+| | `tool_translate_text` | Übersetzt via Google Translate |
+| | `tool_optimize_code` | Formatiert Code sicher (AST-Whitelist) |
+| **Mapping** | `tool_get_mappings` | Zeigt alle Terminologiemappings |
+| | `tool_approve_learning` | Bestätigt Mapping-Kandidaten |
+| | `tool_get_learning_stats` | Zeigt Wort-Frequenzen und Kandidaten |
+| **Canonical** | `tool_get_prompt_context` | Gibt kompakte Canonical-Zeichenkette |
+| | `tool_save_llm_doku` | Schreibt Doku mit Canonical-Kompression |
+| | `tool_expand_doku` | Expandiert Canonicals zurück zur Vollform |
+| **Konfiguration** | `tool_configure` | LLM-Provider einrichten |
+| | `tool_configure_tracker` | Limits und Schwellen zur Laufzeit anpassen |
+| | `tool_config_llm_doku` | Pfad zur LLM-Dokumentation konfigurieren |
 
 ### Die 3 Kompressionsebenen
 
-| Ebene | Marker | Beispiel | Ersparnis |
-|-------|--------|----------|-----------|
-| 1 – Einzelwort | `*-PRÄFIX` | `*-DOKU→Dokumentation` | bis 70% |
-| 2 – Satzteil | `*-PRÄFIX` | `*-ZB→zum Beispiel` | bis 80% |
-| 3 – Zusammensetzung | `**-PRÄFIX` | `**-MOFA→*-MOT+*-FAH` | bis 85% |
-
-**Beispiel für eine token-optimierte Doku:**
 ```
-# LLM-Doku – Semantik MCP
-*-DOKU ist *-D1 *-TE, *-WLC *-FKT *-LLM *-A1 *-C.
-```
-Statt:
-```
-# LLM-Doku – Semantik MCP
-Dokumentation ist die erste Aufgabe, welche die Funktionsweise des LLMs an einem Beispielcode zeigt.
+Ebene 1: Einzelwort           *-DOKUMENTATION → Dokumentation    (spart ~60%)
+Ebene 2: Satzteil             *-ZUMBEISPIEL  → zum Beispiel      (spart ~65%)
+Ebene 3: Zusammensetzung      **-MOFA        → *-MOT+*-FAH       (spart ~75%)
 ```
 
-### Auto-Canonical-Workflow
+### Architektur
 
-1. **Zählung:** Jeder `tool_map_text`-Aufruf zählt **alle** Wörter (auch bekannte)
-2. **Schwelle:** Ab `LEARNING_THRESHOLD` (Standard: 5) Vorkommen prüft der Server:
-   - Ist das Wort ≥ 4 Buchstaben?
-   - Ist das Canonical kürzer als das Wort?
-   - Ist das Wort nicht in der Blacklist (`protected_terms.json`)?
-3. **Canonical-Generierung:** Automatisch → `*-PRÄFIX` (bei Kollision: `*-PRÄFIX1`, `*-PRÄFIX2`, ...)
-4. **Bigramm-Erkennung:** Häufige Wortpaare → `**-PRÄFIX`
-5. **Idle-Persistenz:** Nach 30s ohne Aktivität schreibt der Server die neuen Mappings in `mappings.json`
-
-### Blacklist (geschützte Begriffe)
-
-`protected_terms.json` schützt Wörter und Satzteile vor Canonical-Ersetzung:
-
-```json
-{
-  "terms": ["def", "class", "import"],
-  "phrases": ["zum Beispiel", "das heißt"]
-}
 ```
+┌─────────────────────────────────────────────────────────┐
+│                   MCP-Client (Cline/Claude/VSCode)       │
+└────────────────────────┬────────────────────────────────┘
+                         │ Stdio (JSON-RPC)
+┌────────────────────────▼────────────────────────────────┐
+│                   Semantik MCP Server                    │
+│  ┌──────────┐  ┌──────────────┐  ┌───────────────────┐  │
+│  │ 15 Tools  │  │   Tracker    │  │  Canonical Engine  │  │
+│  │ (MCP API) │──│ (Zählung +   │──│ (*-PRÄFIX-Gen.)    │  │
+│  │           │  │  Auto-Canon.)│  │                    │  │
+│  └──────────┘  └──────┬───────┘  └───────────────────┘  │
+│                        │                                 │
+│               ┌───────▼────────┐                         │
+│               │  Idle-Persistenz│                         │
+│               │  (30s, mappings.json)│                    │
+│               └────────────────┘                          │
+└──────────────────────────────────────────────────────────┘
+```
+
+### Sicherheitsarchitektur
+
+| Schutz | Mechanismus |
+|--------|------------|
+| **Memory-DoS** | Wort-Limits: 10.000/20.000/5.000 (einstellbar) |
+| **ReDoS** | `re.escape()` + Längenbegrenzung auf 200 Patterns |
+| **SSRF** | Host-Whitelist (localhost, openrouter.ai) |
+| **Path Traversal** | `is_relative_to()` + `is_absolute()` |
+| **AST-Injection** | Whitelist erlaubter AST-Knoten |
+| **Thread-Safety** | `threading.RLock` für alle Zugriffe |
+| **Canonical-Kollision** | Maximal 999 Versuche (keine Endlosschleife) |
 
 ---
 
-## LLM-Dokumentation
+## Wie? (Anwendung)
 
-Der Server kann eine token-optimierte LLM-Dokumentation verwalten:
-
-| Tool | Funktion |
-|------|----------|
-| `tool_config_llm_doku(path)` | Konfiguriert Pfad zur `llm-doku.md` im Projektverzeichnis |
-| `tool_save_llm_doku(path, text)` | Schreibt Doku + komprimiert mit Canonicals |
-| `tool_expand_doku(path)` | Expandiert alle Canonicals → Volltext für den LLM |
-
-**Workflow:**
-```
-LLM schreibt Doku → tool_save_llm_doku() komprimiert mit Canonicals
-↓
-Beim Neustart → tool_expand_doku() expandiert Canonicals → LLM hat Volltext
-↓
-Ersparnis: 50-85% weniger Tokens beim Speichern/Laden
-```
-
----
-
-## Sicherheit
-
-Die Anwendung beinhaltet Schutzmechanismen gegen:
-
-- **Path Traversal**: `_safe_path()` prüft alle Pfadzugriffe; `path.is_absolute()` für externe Pfade
-- **ReDoS**: Regex-Pattern werden mit `re.escape()` und Längenbegrenzung geschützt
-- **Unsichere AST-Ausführung**: `tool_optimize_code` nutzt eine AST-Whitelist
-- **SSRF**: `tool_configure` nutzt Host-Whitelist + URL-Validierung
-- **Memory-DoS**: Wort-Tracking auf **10.000** begrenzt, All-Words auf **20.000**, Bigramme auf **5.000**
-- **Input-Länge**: Alle Texteingaben sind auf **100.000** Zeichen begrenzt
-- **Canonical-Kollision**: Maximal **999** Versuche, dann Abbruch (keine Endlosschleife)
-- **Thread-Sicherheit**: Alle Zugriffe auf den Tracker sind durch `threading.RLock` geschützt
-
-### Sicherheits-Hinweise
-
-- Die Datei `secret.key` (automatisch erzeugt) liegt im Projektverzeichnis und
-  ist in `.gitignore` enthalten. Setze stattdessen `SEMANTIK_MASTER_KEY` als
-  Umgebungsvariable für Produktionsumgebungen.
-- `tool_configure` erlaubt nur bestimmte Hosts (localhost, 127.0.0.1, openrouter.ai)
-  um SSRF-Angriffe zu verhindern.
-
----
-
-## Installation
+### Installation
 
 ```bash
 # Mit uv (empfohlen)
@@ -170,22 +105,77 @@ uv sync
 pip install -r requirements.txt
 ```
 
-### Abhängigkeiten
+### MCP-Konfiguration (einmalig)
 
-- `mcp[cli]>=1.0.0` – MCP-Server-Framework
-- `requests>=2.31.0` – HTTP-Client
-- `deep-translator>=1.11.0` – Google Translate Integration
+Füge diesen Block in deine MCP-Client-Konfiguration ein:
 
----
+```json
+{
+  "mcpServers": {
+    "semantik": {
+      "command": "uv",
+      "args": ["run", "--directory", "G:/Programmierung/semantik MCP", "mcp_server/main.py"],
+      "env": {
+        "LLM_PROVIDER": "ollama",
+        "LLM_BASE_URL": "http://localhost:11434",
+        "LLM_MODEL": "llama3.2",
+        "AUTO_LEARN_MODE": "approve",
+        "LEARNING_THRESHOLD": "5"
+      }
+    }
+  }
+}
+```
 
-## Starten
+### Erste Schritte
 
-### MCP-Server (Stdio)
+**1. Provider konfigurieren** (einmalig):
+```
+tool_configure(provider="ollama", model="llama3.2")
+```
 
-```bash
-python mcp_server/main.py
-# oder
-uv run mcp_server/main.py
+**2. Texte analysieren lassen** – jeder Aufruf zählt automatisch Wörter:
+```
+tool_map_text(text="Die Dokumentation beschreibt die Funktionsweise der Installation")
+```
+
+**3. Auto-Canonical läuft im Hintergrund** – nach 5 Vorkommen eines Wortes generiert der Server automatisch ein `*-PRÄFIX`-Mapping:
+```
+→ *-DOKU für "Dokumentation"
+→ *-FKT für "Funktionsweise"
+→ *-INST für "Installation"
+```
+
+**4. Prompt-Kontext abrufen** – kompakte Zeichenkette für deinen LLM-Prompt:
+```
+tool_get_prompt_context()
+→ *-DOKU→Dokumentation|*-FKT→Funktionsweise|*-INST→Installation
+```
+
+**5. LLM-Doku speichern** – mit Canonical-Kompression:
+```
+tool_save_llm_doku(
+    path="G:/Programmierung/MeinProjekt/llm-doku.md",
+    text="Die Dokumentation beschreibt die Funktionsweise der Installation."
+)
+→ Ersparnis: 35%
+```
+
+**6. Doku beim Neustart expandieren:**
+```
+tool_expand_doku(path="G:/Programmierung/MeinProjekt/llm-doku.md")
+→ "Die Dokumentation beschreibt die Funktionsweise der Installation."
+```
+
+### Limits anpassen
+
+Standardwerte für die meisten Fälle ausreichend. Anpassung nur bei Bedarf:
+
+```json
+tool_configure_tracker(
+    threshold=10,       // Canonical erst ab 10 Vorkommen
+    max_all_words=50000 // Mehr Wörter im Tracking
+)
 ```
 
 ### Entwickler-Runner mit Hot-Reload
@@ -194,176 +184,59 @@ uv run mcp_server/main.py
 python scripts/run_server.py
 ```
 
-### Einbindung in MCP-Clients (Cline, Continue, Claude Desktop, VS Code)
+### Tests ausführen
 
-```json
-{
-  "mcpServers": {
-    "semantik": {
-      "command": "uv",
-      "args": ["run", "mcp_server/main.py"],
-      "env": {
-        "LLM_PROVIDER": "ollama",
-        "LLM_BASE_URL": "http://localhost:11434",
-        "LLM_MODEL": "llama3.2"
-      }
-    }
-  }
-}
+```bash
+pytest                    # 145 Tests
+pytest --cov=mcp_server   # Mit Coverage
 ```
-
-Voraussetzung: Laufender LLM-Provider (Ollama, LM Studio oder OpenRouter),
-konfiguriert in `config.json` oder via Env-Variablen.
 
 ---
 
-## Automatisches Mapping-Lernen
+## Was wäre, wenn? (Adaption)
 
-Der Server verfügt über einen eingebauten **Word-Frequency-Tracker**:
+### Erweiterungsmöglichkeiten
 
-1. **Zählung:** Bei jedem `tool_map_text` oder `tool_extract_entities` Aufruf werden alle Wörter gezählt
-2. **Schwelle:** Ab `LEARNING_THRESHOLD` (Standard: 5) Vorkommen wird ein Wort zum Kandidaten
-3. **Auto-Canonical:** Der Server generiert automatisch `*-PRÄFIX`-Mappings für häufige Wörter
-4. **Persistenz:** Bei Leerlauf (>30s ohne Aktivität) werden neue Mappings in `mappings.json` geschrieben (niedrige CPU/GPU-Last)
-
-### MCP-Prompt: `setup`
-
-Zeigt den Konfigurationsstatus oder gibt Setup-Anweisungen aus.
-
-### MCP-Resource: `config://status`
-
-Zeigt den aktuellen Konfigurationsstatus als JSON.
-
----
-
-## Konfiguration
-
-### Env-Variablen (MCP-Konfiguration)
-
-| Env-Variable | Beschreibung | Beispiel |
-|-------------|-------------|----------|
-| `LLM_PROVIDER` | Provider | `ollama`, `lmstudio`, `openrouter` |
-| `LLM_BASE_URL` | Basis-URL | `http://localhost:11434` |
-| `LLM_MODEL` | Modellname | `llama3.2` |
-| `LLM_API_KEY` | API-Key | `sk-or-xxx` (nur OpenRouter) |
-| `AUTO_LEARN_MODE` | Lern-Modus | `approve` oder `auto` |
-| `LEARNING_THRESHOLD` | Schwelle | `5` |
-
-### Ersetzungstabellen (`mappings.json`)
-
-Normale Mappings:
-```json
-{
-  "Kühlung": ["Kühlung", "Kuehlung", "kühlung", "KÜHLUNG", "Kühlgerät"]
-}
-```
-
-Canonical-Mappings (auto-generiert):
-```json
-{
-  "*-DOKU": ["dokumentation"],
-  "*-ANL": ["anleitung"],
-  "**-MOFA": ["motorrad fahren"]
-}
-```
-
-**Format:** `{ "Canonical_oder_Name": ["Variante1", ...] }`
-
-### LLM-Provider (`config.json`)
-
-```json
-{
-  "llm": {
-    "default_provider": "ollama",
-    "ollama": {
-      "base_url": "http://localhost:11434",
-      "default_model": "llama3.2"
-    }
-  }
-}
-```
-
-### Geschützte Begriffe (`protected_terms.json`)
-
-Liste von Identifier-Namen und Satzteilen, die nicht durch Canonicals ersetzt werden:
-
+**1. Eigene Domänen-Mappings einspielen:**  
+Lege in `protected_terms.json` Fachbegriffe fest, die nie ersetzt werden:
 ```json
 {
   "terms": ["def", "class", "import"],
-  "phrases": ["zum Beispiel", "das heißt"]
+  "phrases": ["zum Beispiel", "in der Regel"]
 }
 ```
 
----
+**2. Blacklist für Canonicals erweitern:**  
+Füge in `protected_terms.json` unter `"phrases"` Satzteile hinzu, die als Canonical zu ungenau wären.
 
-## Projektstruktur
+**3. Doku aus anderen Tools generieren:**  
+Nutze die MCP-Resource `config://status` um den Server-Zustand in deine Doku einzubinden.
 
-```
-semantik MCP/
-├── mcp_server/
-│   ├── __init__.py            # Paket-Marker
-│   ├── main.py                # FastMCP-Server (15 Tools + Prompt + Resource)
-│   ├── llm_providers.py       # LLM-Provider-Abstraktion
-│   └── tracker.py             # WordFrequencyTracker + Canonical-Generierung
-├── scripts/
-│   └── run_server.py          # Dev-Hot-Reload-Tool
-├── mappings.json              # Terminologiemapping + Canonicals
-├── protected_terms.json       # Geschützte Identifier + Satzteile
-├── config.json                # LLM-Provider-Konfiguration
-├── pyproject.toml             # Paket-Definition (uv)
-├── README.md                  # Diese Datei
-└── tests/
-    ├── conftest.py
-    ├── test_map_text.py
-    ├── test_optimize_code.py
-    ├── test_summarize_text.py
-    ├── test_llm_providers.py
-    ├── test_run_server.py
-    ├── test_ssrf_protection.py
-    └── test_tracker.py
-```
+### Best Practices
 
----
+| Situation | Empfehlung |
+|-----------|-----------|
+| **Viele kurze Wörter** | Threshold erhöhen (z.B. 10) |
+| **Wenige lange Fachbegriffe** | Threshold senken (z.B. 3) |
+| **Server läuft dauerhaft** | Limits großzügig (50k/100k) |
+| **Server startet oft neu** | `save_llm_doku` + `expand_doku` Workflow |
+| **API-Key-Sicherheit** | `SEMANTIK_MASTER_KEY` statt Datei |
 
-## Tests
+### Bekannte Grenzen
 
-```bash
-# Alle Tests ausführen
-pytest
+- **Canonicals nur für Wörter ≥ 4 Buchstaben** – kürzere Wörter sparen nichts
+- **Maximal 999 Kollisionen pro Prefix** – bei extrem vielen ähnlichen Wörtern wird abgebrochen
+- **Bigramm-Canonicals nur wenn beide Einzelwörter Canonicals haben** – kein direktes Mapping ohne Vorstufe
+- **Kein automatisches Rate-Limiting** – für SaaS-Betrieb bitte einen API-Gateway vorschalten
 
-# Mit Coverage
-pytest --cov=mcp_server
-```
+### Migration
 
-**Test-Statistik:** 145 Tests (davon 54 speziell für das Canonical-System)
+Das Format der `mappings.json` ist abwärtskompatibel:
+- Bestehende Mappings (`"Kühlung": ["kühlung", ...]`) bleiben unverändert
+- Canonical-Mappings werden als zusätzliche Einträge hinzugefügt (`"*-KÜHL": ["kühlung"]`)
+- Beim nächsten Start werden beide Formate geladen
 
 ---
 
-## Architektur
-
-### mcp_server/main.py (aktueller Server)
-
-- **Transport:** Stdio (JSON-RPC über stdin/stdout)
-- **Framework:** FastMCP mit Pydantic-Validierung
-- **Tools:** 15 MCP-konforme Tools mit `Annotated[Type, Field(...)]`-Signaturen
-- **Setup:** MCP-Prompt `setup` + MCP-Resource `config://status` + `tool_configure`
-- **Canonical:** 4 neue Tools für Token-Kompression und LLM-Doku
-- **Lernen:** Integrierter WordFrequencyTracker mit idle-basierter Persistenz
-- **Dependencies:** `mcp[cli]`, `deep-translator`
-
-### mcp_server/tracker.py (Word-Frequency-Tracker)
-
-- **In-Memory-Datenbank:** Zählt Wortvorkommen über alle Tool-Aufrufe
-- **All-Words-Counter:** Zählt **alle** Wörter (auch bekannte) für Auto-Canonical
-- **Bigramm-Tracking:** Erkennt häufige Wortpaare für zusammengesetzte Canonicals
-- **Canonical-Generierung:** Auto `*-PRÄFIX` für Wörter ≥ 5 Vorkommen + Token-Ersparnis
-- **Kollisionsmanagement:** Index-basiert (`*-MOD`, `*-MOD1`, `*-MOD2`, ...)
-- **Prompt-Kontext:** Kompakte Zeichenkette `*-ANL→Anleitung|*-MOD→Modell`
-- **Idle-Persistenz:** 30s Timeout, `threading.Timer`, niedrige CPU/GPU-Last
-- **Speicher-Limits:** Wörter 10.000, All-Words 20.000, Bigramme 5.000
-- **Thread-Sicherheit:** `threading.RLock` für alle Zugriffe
-
-## Spracherkennung
-
-- **Deutsch:** "und", "der", "die", "das", "ist", "ein", "eine", "von", "mit"
-- **Englisch:** "and", "the", "is", "a", "an", "of", "with", "in", "to"
+**Lizenz:** MIT  
+**Repository:** [github.com/Maximus1/semantik-mcp](https://github.com/Maximus1/semantik-mcp)
