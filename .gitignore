@@ -24,6 +24,7 @@ ENV/
 *.swo
 .DS_Store
 Thumbs.db
+.vscode/mcp.json
 
 # Secrets (KRITISCH - niemals committen!)
 secret.key
