@@ -96,3 +96,35 @@ Info: "Ich habe 12 Fachbegriffe erkannt und 3 neue Canonicals generiert."
 - **Erkläre kurz** warum du ein Tool nutzt
 - **Zeige Stats** wenn der User danach fragt
 - **Canonicals** werden automatisch generiert – du musst nichts manuell tun
+
+## Sicherheitsregeln (KRITISCH)
+
+### `llm-doku.md` ist LOKAL und APPEND-ONLY
+- **Niemals überschreiben** – `tool_save_llm_doku` öffnet mit `"a"` (append)
+- **Niemals auf GitHub pushen** – steht in `.gitignore`
+- **Bei Absturz/Restart**: Datei bleibt erhalten, neue Tasks werden angehängt
+- **Format-Trenner**: Neue Tasks werden mit `---` von alten getrennt
+
+### `mappings.json` ist versioniert
+- Enthält gelernte Canonicals – nicht löschen
+- Wird vom Server automatisch aktualisiert
+- Änderungen werden im Idle (30s) persistiert
+
+### `config.json` enthält sensible Daten
+- **Niemals committen** – steht in `.gitignore`
+- Enthält verschlüsselte API-Keys
+- `tool_configure` überschreibt sie sauber
+
+### `mappings.json` regenerieren
+Falls verloren: `tool_configure_tracker(threshold=2)` und Texte analysieren
+führen zu neuer Auto-Generierung. Aber: **besser Backup behalten**.
+
+## Architektur-Checkliste
+
+Bei jedem Task prüfen:
+1. ✅ Code läuft (`pytest`)
+2. ✅ `.gitignore` blockiert sensible Dateien
+3. ✅ `mappings.json` ist versioniert
+4. ✅ Keine API-Keys in Git
+5. ✅ Thread-Safety (`RLock`)
+6. ✅ Tests passieren
