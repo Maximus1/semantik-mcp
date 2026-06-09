@@ -1,22 +1,15 @@
-# Task-Doku
+# LLM-Doku
 
-## Task: 09.06.2026 10:36
-- Tool: Type-Hint-Fixes
-- Eingabe: Pylance-Diagnosen in mcp_server/tracker.py
-- Ergebnis: 7 Diagnosen beseitigt (dict/list-Typannotationen, _task_history in __init__, unused canonical->_)
+## Task: 09.06.2026 10:55
+- Tool: Type-Hint-Fixes main.py
+- Eingabe: Pylance-Diagnosen (isinstance, cast, protected-access)
+- Ergebnis: 145/145 Tests passed, alle public APIs sauber
 - Canonicals: Keine neuen
-- Probleme: Push musste mit stash+rebase gelöst werden (Remote hatte neuen Commit)
-
-## Task: 09.06.2026 10:05
-- Tool: tool_map_text
-- Eingabe: Fachbegriffe aus Chat-Verlauf LLM Quota Checker GUI
-- Ergebnis: 38 neue Canonicals generiert
-- Neue Canonicals: *-ENDOP, *-OPENR, *-KOSTE, *-GUTHA, *-COOLD, *-SORTI, *-PROVI, *-EINGA, *-LLAMA, *-STÜND, *-ÜBERW, *-KONTI, *-AUTOS, *-MINIM, *-COUNT, *-FORTS, *-FEHLE, *-FEHLE1, *-WARTE, *-VERBI, *-KONZI, *-STRUK uvm.
 - Probleme: Keine
 
-## Task: 09.06.2026 05:05
-- Tool: tool_save_llm_doku
-- Eingabe: Test-Doku für automatische Task-Dokumentation
-- Ergebnis: Doku gespeichert mit Canonical-Kompression
-- Canonicals: Keine neuen (erster Test)
-- Probleme: Keine
+## Task: 09.06.2026 10:50
+- Tool: Type-Hint-Fixes tracker.py
+- Eingabe: Pylance-Diagnosen in tracker.py
+- Ergebnis: 67/67 Tracker-Tests passed, keine doppelten Canonicals mehr
+- Canonicals: Keine neuen
+- Probleme: Duplizierungs-Logikfehler in _rebuild_known gefixt (Canonicals wurden ignoriert)
